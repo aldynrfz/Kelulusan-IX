@@ -322,7 +322,34 @@ const UploadModal = memo(({ isOpen, onClose, onSubmit, students = [] }) => {
 });
 
 /* =========================================================
-   3. KOMPONEN UTAMA (Tabel Data)
+   3. KOMPONEN MODAL KONFIRMASI HAPUS
+========================================================= */
+const ConfirmDeleteModal = memo(({ isOpen, onClose, onConfirm, studentName }) => {
+  if (!isOpen) return null;
+  return (
+    <>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
+        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} className="w-full max-w-sm pointer-events-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 size={32} />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Hapus Data</h3>
+            <p className="text-sm text-gray-500 mb-6">Apakah Anda yakin ingin menghapus data siswa <span className="font-semibold text-gray-900">{studentName}</span>? Tindakan ini tidak dapat dibatalkan.</p>
+            <div className="flex gap-3">
+              <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">Batal</button>
+              <button onClick={onConfirm} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors">Ya, Hapus</button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </>
+  );
+});
+
+/* =========================================================
+   4. KOMPONEN UTAMA (Tabel Data)
 ========================================================= */
 export default function DataSiswa() {
   const [students, setStudents] = useState([]);
@@ -346,6 +373,7 @@ export default function DataSiswa() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [editStudent, setEditStudent] = useState(null);
+  const [studentToDelete, setStudentToDelete] = useState(null);
   
   // Toast
   const [toastMsg, setToastMsg] = useState('');
@@ -376,17 +404,22 @@ export default function DataSiswa() {
     setCurrentPage(1);
   };
 
-  const handleDelete = useCallback(async (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+  const handleDeleteClick = useCallback((student) => {
+    setStudentToDelete(student);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (studentToDelete) {
       try {
-        await deleteDoc(doc(db, "siswa", id));
+        await deleteDoc(doc(db, "siswa", studentToDelete.id));
         showToastNotification('Data berhasil dihapus');
+        setStudentToDelete(null);
       } catch (error) {
         console.error("Error deleting document: ", error);
         showToastNotification('Gagal menghapus data');
       }
     }
-  }, [showToastNotification]);
+  }, [studentToDelete, showToastNotification]);
 
   const handleSaveStudent = useCallback(async (formData) => {
     try {
@@ -501,7 +534,7 @@ export default function DataSiswa() {
                       <td className="px-6 py-4 text-right space-x-2">
                         <a href={student.tautanDrive} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Lihat Berkas"><ExternalLink size={16} /></a>
                         <button onClick={() => { setEditStudent(student); setIsModalOpen(true); }} className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Edit Data"><Edit size={16} /></button>
-                        <button onClick={() => handleDelete(student.id)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><Trash2 size={16} /></button>
+                        <button onClick={() => handleDeleteClick(student)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><Trash2 size={16} /></button>
                       </td>
                     </motion.tr>
                   ))}
@@ -554,6 +587,15 @@ export default function DataSiswa() {
               onClose={() => setIsUploadModalOpen(false)} 
               onSubmit={handleImportData}
               students={students}
+            />
+          )}
+
+          {studentToDelete && (
+            <ConfirmDeleteModal
+              isOpen={!!studentToDelete}
+              onClose={() => setStudentToDelete(null)}
+              onConfirm={confirmDelete}
+              studentName={studentToDelete.nama}
             />
           )}
         </AnimatePresence>

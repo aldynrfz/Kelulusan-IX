@@ -1,14 +1,34 @@
-import { useState } from 'react';
-import { CheckCircle2, LayoutDashboard, LogOut, Users, ChevronDown, Key } from 'lucide-react';
+import { CheckCircle2, LayoutDashboard, LogOut, Users, ChevronDown, Key, AlertTriangle, X } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AdminLayout({ children }) {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
+  
+  const handleLogoutClick = () => {
+    setIsProfileOpen(false);
+    setIsLogoutModalOpen(true);
+  };
 
-  const handleLogout = () => {
-    navigate('/login');
+  const confirmLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      setIsLoggingOut(false);
+      setIsLogoutModalOpen(false);
+      setToastMsg('Berhasil logout');
+      setTimeout(() => navigate('/login'), 1000);
+    } catch (error) {
+      console.error('Logout error:', error);
+      setIsLoggingOut(false);
+    }
   };
 
   const navItemClass = ({ isActive }) =>
@@ -101,8 +121,8 @@ export default function AdminLayout({ children }) {
                       Ubah Password
                     </button>
                     <div className="h-px bg-gray-100 my-1"></div>
-                    <button
-                      onClick={handleLogout}
+                    <button 
+                      onClick={handleLogoutClick}
                       className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors font-medium"
                     >
                       <LogOut size={16} />
@@ -153,8 +173,8 @@ export default function AdminLayout({ children }) {
                       <Key size={16} className="text-gray-400" />
                       Ubah Password
                     </button>
-                    <button
-                      onClick={handleLogout}
+                    <button 
+                      onClick={handleLogoutClick}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                     >
                       <LogOut size={16} />
@@ -180,6 +200,75 @@ export default function AdminLayout({ children }) {
           </div>
         </div>
       </main>
+
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {isLogoutModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsLogoutModalOpen(false)}
+              className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[60]"
+            />
+            <div className="fixed inset-0 z-[70] flex items-center justify-center px-4 pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="w-full max-w-sm pointer-events-auto bg-white rounded-2xl shadow-xl overflow-hidden"
+              >
+                <div className="p-6 text-center">
+                  <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <LogOut size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Konfirmasi Logout</h3>
+                  <p className="text-sm text-gray-500 mb-6">Apakah Anda yakin ingin keluar dari halaman administrator?</p>
+                  
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setIsLogoutModalOpen(false)}
+                      className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={confirmLogout}
+                      disabled={isLoggingOut}
+                      className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors relative overflow-hidden flex items-center justify-center"
+                    >
+                      {isLoggingOut ? (
+                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" />
+                      ) : (
+                        'Ya, Keluar'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 right-6 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 z-[100]"
+          >
+            <div className="bg-green-500/20 text-green-400 p-1.5 rounded-full">
+              <CheckCircle2 size={18} />
+            </div>
+            <div className="font-medium text-sm">{toastMsg}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

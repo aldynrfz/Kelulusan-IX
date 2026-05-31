@@ -1,28 +1,42 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { LogIn, Mail, Lock } from 'lucide-react';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LogIn, Mail, Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginStatus, setLoginStatus] = useState('idle');
   const navigate = useNavigate();
+  const { user, startSession } = useAuth();
+
+  // Jika sudah login, arahkan ke dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoginStatus('loading');
     
     try {
+      // Start session BEFORE Firebase auth resolves, so that when 
+      // onAuthStateChanged triggers, the session is already valid.
+      startSession();
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/dashboard');
+      
+      setLoginStatus('success');
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
     } catch (error) {
       console.error("Login error:", error);
       alert('Kredensial tidak valid atau terjadi kesalahan.');
-    } finally {
-      setIsLoading(false);
+      setLoginStatus('idle');
     }
   };
 
@@ -77,33 +91,50 @@ export default function Login() {
                   <Lock size={18} className="text-gray-400" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-11"
+                  className="input-field pl-11 pr-10"
                   placeholder="••••••••"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-primary-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
-              className="btn-primary w-full mt-8"
+              disabled={loginStatus !== 'idle'}
+              className={`btn-primary w-full mt-8 flex justify-center items-center h-12 transition-all duration-300 ${
+                loginStatus === 'success' ? 'bg-green-500 hover:bg-green-600 border-green-500' : ''
+              }`}
             >
-              {isLoading ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                  className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                />
-              ) : (
-                <>
-                  <LogIn size={20} />
-                  <span>Masuk</span>
-                </>
-              )}
+              <AnimatePresence mode="wait">
+                {loginStatus === 'idle' && (
+                  <motion.div key="idle" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2">
+                    <LogIn size={20} />
+                    <span>Masuk</span>
+                  </motion.div>
+                )}
+                {loginStatus === 'loading' && (
+                  <motion.div key="loading" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex items-center gap-2">
+                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" />
+                    <span>Memverifikasi...</span>
+                  </motion.div>
+                )}
+                {loginStatus === 'success' && (
+                  <motion.div key="success" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2">
+                    <CheckCircle2 size={20} />
+                    <span>Berhasil Login!</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </button>
           </form>
           
