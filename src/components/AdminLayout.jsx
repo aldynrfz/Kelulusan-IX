@@ -1,16 +1,30 @@
-import { CheckCircle2, LayoutDashboard, LogOut, Users, ChevronDown, Key, AlertTriangle, X } from 'lucide-react';
+import { CheckCircle2, LayoutDashboard, LogOut, Users, ChevronDown, Key, AlertTriangle, X, Menu } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function AdminLayout({ children }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
+
+  // Handle resize to auto-hide sidebar on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const handleLogoutClick = () => {
     setIsProfileOpen(false);
@@ -39,29 +53,45 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar Desktop */}
-      <aside className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col z-20">
-        <div className="p-6 border-b border-gray-100">
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-gray-900/40 z-20 md:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Responsive */}
+      <aside 
+        className={`fixed inset-y-0 left-0 bg-white border-r border-gray-200 z-30 flex flex-col transition-all duration-300 ease-in-out md:relative ${
+          isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-0 overflow-hidden opacity-0 md:opacity-100'
+        }`}
+      >
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between whitespace-nowrap">
           <div className="flex items-center gap-3 text-primary-600 font-bold text-xl">
-            <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
+            <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-primary-100 flex items-center justify-center">
               <CheckCircle2 size={20} />
             </div>
-            Kelulusan Kelas IX
+            <span>Kelulusan IX</span>
           </div>
+          {/* Close button for mobile */}
+          <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-gray-600">
+            <X size={20} />
+          </button>
         </div>
 
-        <div className="p-4 flex-1">
-          <ul className="space-y-2">
+        <div className="p-4 flex-1 overflow-hidden">
+          <ul className="space-y-2 w-56">
             <li>
-              <NavLink to="/dashboard" className={navItemClass}>
-                <LayoutDashboard size={20} />
-                Dashboard
+              <NavLink to="/dashboard" onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)} className={navItemClass}>
+                <LayoutDashboard size={20} className="flex-shrink-0" />
+                <span>Dashboard</span>
               </NavLink>
             </li>
             <li>
-              <NavLink to="/data-siswa" className={navItemClass}>
-                <Users size={20} />
-                Data Siswa
+              <NavLink to="/data-siswa" onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)} className={navItemClass}>
+                <Users size={20} className="flex-shrink-0" />
+                <span>Data Siswa</span>
               </NavLink>
             </li>
           </ul>
@@ -72,7 +102,14 @@ export default function AdminLayout({ children }) {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
 
         {/* Desktop Header */}
-        <header className="hidden md:flex bg-white h-20 border-b border-gray-200 items-center justify-end px-8 flex-shrink-0 z-10">
+        <header className="hidden md:flex bg-white h-20 border-b border-gray-200 items-center justify-between px-8 flex-shrink-0 z-10">
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+            className="p-2 hover:bg-gray-100 rounded-xl text-gray-500 transition-colors"
+          >
+            <Menu size={24} />
+          </button>
+
           <div className="relative">
             <button
               onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -137,9 +174,17 @@ export default function AdminLayout({ children }) {
 
         {/* Mobile Header */}
         <div className="md:hidden bg-white p-4 border-b border-gray-200 flex justify-between items-center z-10 flex-shrink-0">
-          <div className="flex items-center gap-2 font-bold text-primary-600">
-            <CheckCircle2 size={20} />
-            Admin
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsSidebarOpen(true)} 
+              className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
+            >
+              <Menu size={24} />
+            </button>
+            <div className="flex items-center gap-2 font-bold text-primary-600">
+              <CheckCircle2 size={20} />
+              Admin
+            </div>
           </div>
 
           {/* Mobile Profile Toggle */}
@@ -187,11 +232,7 @@ export default function AdminLayout({ children }) {
           </div>
         </div>
 
-        {/* Mobile Nav */}
-        <div className="md:hidden bg-white px-4 py-2 border-b border-gray-100 flex gap-2 overflow-x-auto flex-shrink-0">
-          <NavLink to="/dashboard" className={({ isActive }) => `px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap ${isActive ? 'bg-primary-50 text-primary-700' : 'text-gray-500'}`}>Dashboard</NavLink>
-          <NavLink to="/data-siswa" className={({ isActive }) => `px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap ${isActive ? 'bg-primary-50 text-primary-700' : 'text-gray-500'}`}>Data Siswa</NavLink>
-        </div>
+        {/* Removed horizontal mobile nav */}
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-gray-50/50">
