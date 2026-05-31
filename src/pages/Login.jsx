@@ -5,6 +5,7 @@ import { LogIn, Mail, Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/logo.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -58,9 +59,9 @@ export default function Login() {
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-primary-600 shadow-inner"
+              className="mx-auto mb-6"
             >
-              <Lock size={32} />
+              <img src={logo} alt="Logo" className="w-24 h-24 object-contain mx-auto drop-shadow-md" />
             </motion.div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Login Admin</h1>
             <p className="text-gray-500 mt-2">Masuk ke dasbor kelulusan MTsN 11</p>

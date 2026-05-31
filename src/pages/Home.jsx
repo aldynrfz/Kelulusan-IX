@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Loader2, Download, CheckCircle, XCircle, GraduationCap } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import confetti from 'canvas-confetti';
+import logo from '../assets/logo.png';
 
 export default function Home() {
   const [nisn, setNisn] = useState('');
@@ -25,6 +27,16 @@ export default function Home() {
       if (!querySnapshot.empty) {
         // Assuming there is only one student per NISN
         const docData = querySnapshot.docs[0].data();
+        
+        if (docData.statusLulus) {
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#22c55e', '#4ade80', '#16a34a', '#facc15', '#fbbf24']
+          });
+        }
+
         setResult({
           nama: docData.nama,
           nisn: docData.nisn,
@@ -60,9 +72,9 @@ export default function Home() {
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
-              className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6 text-primary-600 shadow-inner"
+              className="mx-auto mb-6"
             >
-              <GraduationCap size={40} />
+              <img src={logo} alt="Logo MTsN 11" className="w-28 h-28 object-contain mx-auto drop-shadow-md" />
             </motion.div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Portal Kelulusan</h1>
             <p className="text-gray-500">MTsN 11 Tasikmalaya</p>

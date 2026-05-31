@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/logo.png';
 
 export default function AdminLayout({ children }) {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function AdminLayout({ children }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
+
   const handleLogoutClick = () => {
     setIsProfileOpen(false);
     setIsLogoutModalOpen(true);
@@ -55,23 +56,20 @@ export default function AdminLayout({ children }) {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-gray-900/40 z-20 md:hidden" 
+        <div
+          className="fixed inset-0 bg-gray-900/40 z-20 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar Responsive */}
-      <aside 
-        className={`fixed inset-y-0 left-0 bg-white border-r border-gray-200 z-30 flex flex-col transition-all duration-300 ease-in-out md:relative ${
-          isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-0 overflow-hidden opacity-0 md:opacity-100'
-        }`}
+      <aside
+        className={`fixed inset-y-0 left-0 bg-white border-r border-gray-200 z-30 flex flex-col transition-all duration-300 ease-in-out md:relative ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-0 overflow-hidden opacity-0 md:opacity-100'
+          }`}
       >
         <div className="p-6 border-b border-gray-100 flex items-center justify-between whitespace-nowrap">
           <div className="flex items-center gap-3 text-primary-600 font-bold text-xl">
-            <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-primary-100 flex items-center justify-center">
-              <CheckCircle2 size={20} />
-            </div>
+            <img src={logo} alt="Logo" className="w-8 h-8 object-contain flex-shrink-0" />
             <span>Kelulusan IX</span>
           </div>
           {/* Close button for mobile */}
@@ -103,8 +101,8 @@ export default function AdminLayout({ children }) {
 
         {/* Desktop Header */}
         <header className="hidden md:flex bg-white h-20 border-b border-gray-200 items-center justify-between px-8 flex-shrink-0 z-10">
-          <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="p-2 hover:bg-gray-100 rounded-xl text-gray-500 transition-colors"
           >
             <Menu size={24} />
@@ -158,7 +156,7 @@ export default function AdminLayout({ children }) {
                       Ubah Password
                     </button>
                     <div className="h-px bg-gray-100 my-1"></div>
-                    <button 
+                    <button
                       onClick={handleLogoutClick}
                       className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors font-medium"
                     >
@@ -175,15 +173,14 @@ export default function AdminLayout({ children }) {
         {/* Mobile Header */}
         <div className="md:hidden bg-white p-4 border-b border-gray-200 flex justify-between items-center z-10 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsSidebarOpen(true)} 
+            <button
+              onClick={() => setIsSidebarOpen(true)}
               className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
             >
               <Menu size={24} />
             </button>
             <div className="flex items-center gap-2 font-bold text-primary-600">
-              <CheckCircle2 size={20} />
-              Admin
+
             </div>
           </div>
 
@@ -218,7 +215,7 @@ export default function AdminLayout({ children }) {
                       <Key size={16} className="text-gray-400" />
                       Ubah Password
                     </button>
-                    <button 
+                    <button
                       onClick={handleLogoutClick}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                     >
@@ -267,7 +264,7 @@ export default function AdminLayout({ children }) {
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Konfirmasi Logout</h3>
                   <p className="text-sm text-gray-500 mb-6">Apakah Anda yakin ingin keluar dari halaman administrator?</p>
-                  
+
                   <div className="flex gap-3">
                     <button
                       onClick={() => setIsLogoutModalOpen(false)}
