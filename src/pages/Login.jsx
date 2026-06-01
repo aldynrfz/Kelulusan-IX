@@ -23,13 +23,13 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginStatus('loading');
-    
+
     try {
       // Start session BEFORE Firebase auth resolves, so that when 
       // onAuthStateChanged triggers, the session is already valid.
       startSession();
       await signInWithEmailAndPassword(auth, email, password);
-      
+
       setLoginStatus('success');
       setTimeout(() => {
         navigate('/dashboard');
@@ -42,7 +42,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-200">
+    <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-r from-primary-100 via-white to-primary-200 animate-gradient-x">
       {/* Decorative background elements */}
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" />
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" style={{ animationDelay: '1.5s' }} />
@@ -64,7 +64,7 @@ export default function Login() {
               <img src={logo} alt="Logo" className="w-24 h-24 object-contain mx-auto drop-shadow-md" />
             </motion.div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Login Admin</h1>
-            <p className="text-gray-500 mt-2">Masuk ke dasbor kelulusan MTsN 11</p>
+            <p className="text-gray-500 mt-2">Masuk ke dasbor kelulusan MTsN 11 Tasikmalaya</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -112,9 +112,8 @@ export default function Login() {
             <button
               type="submit"
               disabled={loginStatus !== 'idle'}
-              className={`btn-primary w-full mt-8 flex justify-center items-center h-12 transition-all duration-300 ${
-                loginStatus === 'success' ? 'bg-green-500 hover:bg-green-600 border-green-500' : ''
-              }`}
+              className={`btn-primary w-full mt-8 flex justify-center items-center h-12 transition-all duration-300 ${loginStatus === 'success' ? 'bg-green-500 hover:bg-green-600 border-green-500' : ''
+                }`}
             >
               <AnimatePresence mode="wait">
                 {loginStatus === 'idle' && (
@@ -138,9 +137,9 @@ export default function Login() {
               </AnimatePresence>
             </button>
           </form>
-          
+
           <div className="mt-6 text-center text-sm text-gray-400">
-            Silakan masuk menggunakan kredensial admin.
+            Silakan masuk menggunakan akun admin.
           </div>
         </div>
       </motion.div>

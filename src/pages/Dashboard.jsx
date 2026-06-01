@@ -37,7 +37,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5"
+            className="glass-card p-6 flex items-center gap-5"
           >
             <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
               <Users size={28} />
@@ -50,7 +50,7 @@ export default function Dashboard() {
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5"
+            className="glass-card p-6 flex items-center gap-5"
           >
             <div className="w-14 h-14 rounded-full bg-green-50 text-green-500 flex items-center justify-center">
               <CheckCircle size={28} />
@@ -63,7 +63,7 @@ export default function Dashboard() {
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5"
+            className="glass-card p-6 flex items-center gap-5"
           >
             <div className="w-14 h-14 rounded-full bg-red-50 text-red-500 flex items-center justify-center">
               <XCircle size={28} />
@@ -81,8 +81,8 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+          <div className="glass-card overflow-hidden">
+            <div className="p-5 border-b border-white/40 bg-white/20 flex justify-between items-center">
               <h2 className="font-semibold text-gray-800">Data Siswa Terbaru</h2>
             </div>
             

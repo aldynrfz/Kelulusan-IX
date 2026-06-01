@@ -55,7 +55,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-200">
+    <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-r from-primary-100 via-white to-primary-200 animate-gradient-x">
       {/* Decorative background elements */}
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" />
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" style={{ animationDelay: '1.5s' }} />

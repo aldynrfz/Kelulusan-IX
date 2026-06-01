@@ -4,7 +4,7 @@ import { Save, FileText, User, Link as LinkIcon, CheckCircle2, Search, Plus, Edi
 import * as XLSX from 'xlsx';
 import AdminLayout from '../components/AdminLayout';
 import { db } from '../firebase';
-import { collection, onSnapshot, query, addDoc, updateDoc, deleteDoc, doc, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, query, addDoc, updateDoc, deleteDoc, doc, writeBatch, orderBy, getDocs } from 'firebase/firestore';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -30,7 +30,7 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     // Simulasi simpan data
     setTimeout(() => {
       setIsSaving(false);
@@ -57,8 +57,8 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="w-full max-w-lg pointer-events-auto"
         >
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <div className="glass-card overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/40 flex justify-between items-center bg-white/20">
               <h2 className="text-lg font-bold text-gray-900">
                 {initialData ? 'Edit Data Siswa' : 'Tambah Siswa Baru'}
               </h2>
@@ -66,7 +66,7 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-6">
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
@@ -79,7 +79,7 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
                       type="text"
                       required
                       value={formData.nisn}
-                      onChange={(e) => setFormData({...formData, nisn: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, nisn: e.target.value })}
                       className="input-field pl-10 py-2.5"
                       placeholder="Masukkan NISN"
                     />
@@ -96,7 +96,7 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
                       type="text"
                       required
                       value={formData.nama}
-                      onChange={(e) => setFormData({...formData, nama: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
                       className="input-field pl-10 py-2.5"
                       placeholder="Nama Lengkap Siswa"
                     />
@@ -108,19 +108,17 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
                   <div className="flex bg-gray-100 p-1.5 rounded-xl">
                     <button
                       type="button"
-                      onClick={() => setFormData({...formData, statusLulus: true})}
-                      className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
-                        formData.statusLulus ? 'bg-white text-green-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                      }`}
+                      onClick={() => setFormData({ ...formData, statusLulus: true })}
+                      className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${formData.statusLulus ? 'bg-white text-green-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                        }`}
                     >
                       LULUS
                     </button>
                     <button
                       type="button"
-                      onClick={() => setFormData({...formData, statusLulus: false})}
-                      className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
-                        !formData.statusLulus ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                      }`}
+                      onClick={() => setFormData({ ...formData, statusLulus: false })}
+                      className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${!formData.statusLulus ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                        }`}
                     >
                       TIDAK LULUS
                     </button>
@@ -137,7 +135,7 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
                       type="url"
                       required
                       value={formData.tautanDrive}
-                      onChange={(e) => setFormData({...formData, tautanDrive: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, tautanDrive: e.target.value })}
                       className="input-field pl-10 py-2.5"
                       placeholder="https://drive.google.com/..."
                     />
@@ -249,8 +247,8 @@ const UploadModal = memo(({ isOpen, onClose, onSubmit, students = [] }) => {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40" />
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
         <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} className="w-full max-w-lg pointer-events-auto">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <div className="glass-card overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/40 flex justify-between items-center bg-white/20">
               <h2 className="text-lg font-bold text-gray-900">Upload Data Siswa</h2>
               <button onClick={onClose} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
             </div>
@@ -330,7 +328,7 @@ const ConfirmDeleteModal = memo(({ isOpen, onClose, onConfirm, studentName }) =>
     <>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40" />
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
-        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} className="w-full max-w-sm pointer-events-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} className="w-full max-w-sm pointer-events-auto glass-card overflow-hidden">
           <div className="p-6 text-center">
             <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Trash2 size={32} />
@@ -349,13 +347,70 @@ const ConfirmDeleteModal = memo(({ isOpen, onClose, onConfirm, studentName }) =>
 });
 
 /* =========================================================
-   4. KOMPONEN UTAMA (Tabel Data)
+   4. KOMPONEN MODAL KONFIRMASI HAPUS SEMUA DATA
+========================================================= */
+const ConfirmDeleteAllModal = memo(({ isOpen, onClose, onConfirm }) => {
+  const [verifyText, setVerifyText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setVerifyText('');
+      setIsDeleting(false);
+    }
+  }, [isOpen]);
+
+  const handleConfirm = () => {
+    setIsDeleting(true);
+    onConfirm();
+  };
+
+  if (!isOpen) return null;
+  return (
+    <>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={!isDeleting ? onClose : undefined} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
+        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} className="w-full max-w-sm pointer-events-auto glass-card overflow-hidden">
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle size={32} />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Hapus SEMUA Data</h3>
+            <p className="text-sm text-gray-500 mb-4">Tindakan ini akan menghapus permanen <strong>seluruh data siswa ({verifyText === 'HAPUS SEMUA' ? 'TERVERIFIKASI' : '...'})</strong>. Tindakan ini tidak dapat dibatalkan.</p>
+
+            <div className="text-left mb-6">
+              <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wider text-center">Ketik "HAPUS SEMUA" untuk konfirmasi</label>
+              <input
+                type="text"
+                value={verifyText}
+                onChange={(e) => setVerifyText(e.target.value)}
+                className="input-field py-2.5 w-full text-center font-bold tracking-widest text-red-600 border-red-200 focus:border-red-500 focus:ring-red-500/20"
+                placeholder="HAPUS SEMUA"
+                disabled={isDeleting}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={onClose} disabled={isDeleting} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50">Batal</button>
+              <button onClick={handleConfirm} disabled={verifyText !== 'HAPUS SEMUA' || isDeleting} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+                {isDeleting ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full mx-auto" /> : 'Hapus Semua'}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </>
+  );
+});
+
+/* =========================================================
+   5. KOMPONEN UTAMA (Tabel Data)
 ========================================================= */
 export default function DataSiswa() {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    const q = query(collection(db, "siswa"));
+    const q = query(collection(db, "siswa"), orderBy("order", "asc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const studentData = [];
       snapshot.forEach((doc) => {
@@ -363,18 +418,19 @@ export default function DataSiswa() {
       });
       setStudents(studentData);
     });
-    
+
     return () => unsubscribe();
   }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   // Modal states (hanya flag boolean dan edit reference)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
   const [editStudent, setEditStudent] = useState(null);
   const [studentToDelete, setStudentToDelete] = useState(null);
-  
+
   // Toast
   const [toastMsg, setToastMsg] = useState('');
   const showToastNotification = useCallback((msg) => {
@@ -421,13 +477,50 @@ export default function DataSiswa() {
     }
   }, [studentToDelete, showToastNotification]);
 
+  const handleDeleteAll = useCallback(async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "siswa"));
+      let batch = writeBatch(db);
+      let operationCount = 0;
+
+      for (const document of querySnapshot.docs) {
+        batch.delete(doc(db, "siswa", document.id));
+        operationCount++;
+        if (operationCount === 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          operationCount = 0;
+        }
+      }
+
+      if (operationCount > 0) {
+        await batch.commit();
+      }
+
+      showToastNotification('Seluruh data berhasil dihapus');
+      setIsDeleteAllModalOpen(false);
+      setCurrentPage(1);
+    } catch (error) {
+      console.error("Error deleting all documents: ", error);
+      showToastNotification('Gagal menghapus seluruh data');
+    }
+  }, [showToastNotification]);
+
   const handleSaveStudent = useCallback(async (formData) => {
     try {
+      // Cek duplikat NISN
+      const isDuplicate = students.some(s => s.nisn === formData.nisn && (!editStudent || s.id !== editStudent.id));
+      if (isDuplicate) {
+        showToastNotification('Gagal: NISN sudah terdaftar');
+        return;
+      }
+
       if (editStudent) {
         await updateDoc(doc(db, "siswa", editStudent.id), formData);
         showToastNotification('Data berhasil diperbarui');
       } else {
-        await addDoc(collection(db, "siswa"), formData);
+        const maxOrder = students.length > 0 ? Math.max(...students.map(s => s.order || 0)) : 0;
+        await addDoc(collection(db, "siswa"), { ...formData, order: maxOrder + 1 });
         showToastNotification('Data berhasil ditambahkan');
       }
       setIsModalOpen(false);
@@ -435,28 +528,66 @@ export default function DataSiswa() {
       console.error("Error saving document: ", error);
       showToastNotification('Gagal menyimpan data');
     }
-  }, [editStudent, showToastNotification]);
+  }, [editStudent, students, showToastNotification]);
 
   const handleImportData = useCallback(async (importedData) => {
     try {
-      const batch = writeBatch(db);
+      // Hapus duplikat NISN dari data yang diimport
+      const uniqueData = [];
+      const seenNisn = new Set();
       importedData.forEach((student) => {
+        if (!seenNisn.has(student.nisn)) {
+          seenNisn.add(student.nisn);
+          uniqueData.push(student);
+        }
+      });
+
+      let batch = writeBatch(db);
+      let operationCount = 0;
+
+      // Hapus semua data lama (termasuk yang tidak memiliki field order)
+      const querySnapshot = await getDocs(collection(db, "siswa"));
+      for (const document of querySnapshot.docs) {
+        batch.delete(doc(db, "siswa", document.id));
+        operationCount++;
+        if (operationCount === 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          operationCount = 0;
+        }
+      }
+
+      // Tambahkan data baru dengan order
+      for (let i = 0; i < uniqueData.length; i++) {
+        const student = uniqueData[i];
         const docRef = doc(collection(db, "siswa"));
         batch.set(docRef, {
           nisn: student.nisn,
           nama: student.nama,
           statusLulus: student.statusLulus,
-          tautanDrive: student.tautanDrive
+          tautanDrive: student.tautanDrive,
+          order: i
         });
-      });
-      await batch.commit();
-      showToastNotification(`${importedData.length} data siswa berhasil diimport`);
+        operationCount++;
+        if (operationCount === 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          operationCount = 0;
+        }
+      }
+
+      if (operationCount > 0) {
+        await batch.commit();
+      }
+
+      showToastNotification(`${uniqueData.length} data siswa berhasil diimport (data lama diganti)`);
       setIsUploadModalOpen(false);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error importing documents: ", error);
       showToastNotification('Gagal mengimport data');
     }
-  }, [showToastNotification]);
+  }, [students, showToastNotification]);
 
   return (
     <AdminLayout>
@@ -465,9 +596,9 @@ export default function DataSiswa() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Data Siswa</h1>
-            <p className="text-gray-500 mt-1">Kelola informasi kelulusan siswa MTsN 11.</p>
+            <p className="text-gray-500 mt-1">Kelola informasi kelulusan siswa MTsN 11 Tasikmalaya</p>
           </div>
-          
+
           <div className="flex w-full sm:w-auto items-center gap-3">
             <div className="relative w-full sm:w-64">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -481,8 +612,17 @@ export default function DataSiswa() {
                 placeholder="Cari nama atau NISN..."
               />
             </div>
-            
-            <button 
+
+            <button
+              onClick={() => setIsDeleteAllModalOpen(true)}
+              className="py-2 px-4 whitespace-nowrap text-sm rounded-xl border border-red-200 bg-red-50 text-red-600 font-semibold hover:bg-red-100 hover:border-red-300 transition-all flex items-center gap-2 shadow-sm"
+              title="Hapus Semua Data"
+            >
+              <Trash2 size={18} />
+              <span className="hidden sm:inline">Hapus Semua</span>
+            </button>
+
+            <button
               onClick={() => setIsUploadModalOpen(true)}
               className="py-2 px-4 whitespace-nowrap text-sm rounded-xl border border-gray-200 bg-white text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-2 shadow-sm"
             >
@@ -490,7 +630,7 @@ export default function DataSiswa() {
               <span className="hidden sm:inline">Upload Data</span>
             </button>
 
-            <button 
+            <button
               onClick={() => { setEditStudent(null); setIsModalOpen(true); }}
               className="btn-primary py-2 px-4 whitespace-nowrap text-sm"
             >
@@ -501,11 +641,11 @@ export default function DataSiswa() {
         </div>
 
         {/* Data Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50 border-b-2 border-gray-200 text-gray-500 text-sm">
+                <tr className="bg-white/20 border-b-2 border-white/40 text-gray-700 text-sm">
                   <th className="px-6 py-4 font-semibold w-1/4 border-r border-gray-100">NISN</th>
                   <th className="px-6 py-4 font-semibold w-1/3 border-r border-gray-100">Nama Siswa</th>
                   <th className="px-6 py-4 font-semibold border-r border-gray-100">Status Kelulusan</th>
@@ -515,7 +655,7 @@ export default function DataSiswa() {
               <tbody className="divide-y divide-gray-200">
                 <AnimatePresence mode="wait">
                   {currentData.map((student) => (
-                    <motion.tr 
+                    <motion.tr
                       key={student.id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -555,16 +695,62 @@ export default function DataSiswa() {
 
           {/* Pagination */}
           {totalPages > 0 && (
-            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <div className="text-sm text-gray-500">
+            <div className="px-4 sm:px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between bg-gray-50/50 gap-4">
+              <div className="text-sm text-gray-500 w-full sm:w-auto text-center sm:text-left">
                 Menampilkan <span className="font-semibold text-gray-900">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> hingga <span className="font-semibold text-gray-900">{Math.min(currentPage * ITEMS_PER_PAGE, filteredStudents.length)}</span> dari <span className="font-semibold text-gray-900">{filteredStudents.length}</span> data
               </div>
-              <div className="flex gap-1">
-                <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><ChevronLeft size={16} /></button>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button key={i + 1} onClick={() => setCurrentPage(i + 1)} className={`w-8 h-8 flex items-center justify-center rounded-lg border text-sm font-medium transition-colors ${currentPage === i + 1 ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'}`}>{i + 1}</button>
-                ))}
-                <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><ChevronRight size={16} /></button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {(() => {
+                    let pages = [];
+                    if (totalPages <= 5) {
+                      pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+                    } else if (currentPage <= 3) {
+                      pages = [1, 2, 3, 4, '...', totalPages];
+                    } else if (currentPage >= totalPages - 2) {
+                      pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                    } else {
+                      pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                    }
+
+                    return pages.map((page, index) => {
+                      if (page === '...') {
+                        return <span key={`ellipsis-${index}`} className="w-8 h-9 flex items-center justify-center text-gray-400">...</span>;
+                      }
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold transition-all ${currentPage === page
+                              ? 'bg-primary-600 text-white shadow-md shadow-primary-500/20'
+                              : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900 shadow-sm'
+                            } ${/* Sembunyikan angka tengah di mobile, kecuali halaman 1, terakhir, dan saat ini */ ''}
+                             ${page !== 1 && page !== totalPages && page !== currentPage ? 'hidden sm:flex' : 'flex'}
+                          `}
+                        >
+                          {page}
+                        </button>
+                      );
+                    });
+                  })()}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                >
+                  <ChevronRight size={18} />
+                </button>
               </div>
             </div>
           )}
@@ -573,18 +759,18 @@ export default function DataSiswa() {
         {/* Modals yang Dipisahkan (Mencegah Re-render Tabel saat Form Berubah) */}
         <AnimatePresence>
           {isModalOpen && (
-            <StudentFormModal 
-              isOpen={isModalOpen} 
-              onClose={() => setIsModalOpen(false)} 
-              onSubmit={handleSaveStudent} 
-              initialData={editStudent} 
+            <StudentFormModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onSubmit={handleSaveStudent}
+              initialData={editStudent}
             />
           )}
-          
+
           {isUploadModalOpen && (
-            <UploadModal 
-              isOpen={isUploadModalOpen} 
-              onClose={() => setIsUploadModalOpen(false)} 
+            <UploadModal
+              isOpen={isUploadModalOpen}
+              onClose={() => setIsUploadModalOpen(false)}
               onSubmit={handleImportData}
               students={students}
             />
@@ -596,6 +782,14 @@ export default function DataSiswa() {
               onClose={() => setStudentToDelete(null)}
               onConfirm={confirmDelete}
               studentName={studentToDelete.nama}
+            />
+          )}
+
+          {isDeleteAllModalOpen && (
+            <ConfirmDeleteAllModal
+              isOpen={isDeleteAllModalOpen}
+              onClose={() => setIsDeleteAllModalOpen(false)}
+              onConfirm={handleDeleteAll}
             />
           )}
         </AnimatePresence>

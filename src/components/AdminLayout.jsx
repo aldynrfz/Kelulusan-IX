@@ -53,7 +53,7 @@ export default function AdminLayout({ children }) {
     }`;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex bg-gradient-to-r from-primary-100 via-white to-primary-200 animate-gradient-x relative overflow-hidden">
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
         <div
@@ -64,7 +64,7 @@ export default function AdminLayout({ children }) {
 
       {/* Sidebar Responsive */}
       <aside
-        className={`fixed inset-y-0 left-0 bg-white border-r border-gray-200 z-30 flex flex-col transition-all duration-300 ease-in-out md:relative ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-0 overflow-hidden opacity-0 md:opacity-100'
+        className={`fixed inset-y-0 left-0 bg-white/40 backdrop-blur-xl border-r border-white/60 z-30 flex flex-col transition-all duration-300 ease-in-out md:relative ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-0 overflow-hidden opacity-0 md:opacity-100'
           }`}
       >
         <div className="p-6 border-b border-gray-100 flex items-center justify-between whitespace-nowrap">
@@ -100,7 +100,7 @@ export default function AdminLayout({ children }) {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
 
         {/* Desktop Header */}
-        <header className="hidden md:flex bg-white h-20 border-b border-gray-200 items-center justify-between px-8 flex-shrink-0 z-10">
+        <header className="hidden md:flex bg-white/40 backdrop-blur-xl h-20 border-b border-white/60 items-center justify-between px-8 flex-shrink-0 z-10">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="p-2 hover:bg-gray-100 rounded-xl text-gray-500 transition-colors"
@@ -138,7 +138,7 @@ export default function AdminLayout({ children }) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-40"
+                    className="absolute right-0 mt-2 w-56 bg-white/80 backdrop-blur-xl rounded-xl shadow-lg border border-white/60 py-2 z-40"
                   >
                     <div className="px-4 py-3 border-b border-gray-50 lg:hidden">
                       <div className="text-sm font-bold text-gray-900">Administrator</div>
@@ -171,7 +171,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* Mobile Header */}
-        <div className="md:hidden bg-white p-4 border-b border-gray-200 flex justify-between items-center z-10 flex-shrink-0">
+        <div className="md:hidden bg-white/40 backdrop-blur-xl p-4 border-b border-white/60 flex justify-between items-center z-10 flex-shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -203,7 +203,7 @@ export default function AdminLayout({ children }) {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-40"
+                    className="absolute right-0 mt-2 w-48 bg-white/80 backdrop-blur-xl rounded-xl shadow-lg border border-white/60 py-2 z-40"
                   >
                     <button
                       onClick={() => {
@@ -232,7 +232,7 @@ export default function AdminLayout({ children }) {
         {/* Removed horizontal mobile nav */}
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-gray-50/50">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-transparent">
           <div className="max-w-6xl mx-auto">
             {children}
           </div>
@@ -256,7 +256,7 @@ export default function AdminLayout({ children }) {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="w-full max-w-sm pointer-events-auto bg-white rounded-2xl shadow-xl overflow-hidden"
+                className="w-full max-w-sm pointer-events-auto glass-card overflow-hidden"
               >
                 <div className="p-6 text-center">
                   <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
