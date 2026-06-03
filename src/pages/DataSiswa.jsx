@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Save, FileText, User, Link as LinkIcon, CheckCircle2, Search, Plus, Edit, Trash2, ExternalLink, X, ChevronLeft, ChevronRight, AlertCircle, Upload, Download, FileSpreadsheet } from 'lucide-react';
+import { Save, FileText, User, Link as LinkIcon, CheckCircle2, Search, Plus, Edit, Trash2, ExternalLink, X, ChevronLeft, ChevronRight, AlertCircle, Upload, Download, FileSpreadsheet, ChevronDown } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import AdminLayout from '../components/AdminLayout';
 import { db } from '../firebase';
@@ -442,6 +442,7 @@ export default function DataSiswa() {
   }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   // Modal states (hanya flag boolean dan edit reference)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -704,10 +705,65 @@ export default function DataSiswa() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right space-x-2">
-                        <a href={student.tautanDrive} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Lihat Berkas"><ExternalLink size={16} /></a>
-                        <button onClick={() => { setEditStudent(student); setIsModalOpen(true); }} className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Edit Data"><Edit size={16} /></button>
-                        <button onClick={() => handleDeleteClick(student)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><Trash2 size={16} /></button>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {/* Dropdown Lihat Berkas */}
+                          <div className="relative">
+                            <button
+                              onClick={() => setOpenDropdownId(openDropdownId === student.id ? null : student.id)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-medium"
+                              title="Lihat Berkas"
+                            >
+                              <ExternalLink size={14} />
+                              <ChevronDown size={12} className={`transition-transform ${openDropdownId === student.id ? 'rotate-180' : ''}`} />
+                            </button>
+                            <AnimatePresence>
+                              {openDropdownId === student.id && (
+                                <>
+                                  <div className="fixed inset-0 z-10" onClick={() => setOpenDropdownId(null)} />
+                                  <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: (index >= currentData.length - 2 && currentData.length > 2) ? 10 : -10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: (index >= currentData.length - 2 && currentData.length > 2) ? 10 : -10 }}
+                                    transition={{ duration: 0.15, ease: "easeOut" }}
+                                    className={`absolute right-0 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-20 ${
+                                      index >= currentData.length - 2 && currentData.length > 2 
+                                        ? 'bottom-full mb-2 origin-bottom-right' 
+                                        : 'mt-2 origin-top-right'
+                                    }`}
+                                  >
+                                    <a
+                                      href={student.tautanDrive || '#'}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      onClick={(e) => { if (!student.tautanDrive) e.preventDefault(); setOpenDropdownId(null); }}
+                                      className={`flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                                        student.tautanDrive ? 'text-gray-700 hover:bg-blue-50 hover:text-blue-700' : 'text-gray-300 cursor-not-allowed'
+                                      }`}
+                                    >
+                                      <FileText size={15} className={student.tautanDrive ? 'text-indigo-500' : 'text-gray-300'} />
+                                      <span>Surat Keterangan Lulus</span>
+                                    </a>
+                                    <a
+                                      href={student.tautanKelakuanBaik || '#'}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      onClick={(e) => { if (!student.tautanKelakuanBaik) e.preventDefault(); setOpenDropdownId(null); }}
+                                      className={`flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                                        student.tautanKelakuanBaik ? 'text-gray-700 hover:bg-teal-50 hover:text-teal-700' : 'text-gray-300 cursor-not-allowed'
+                                      }`}
+                                    >
+                                      <FileText size={15} className={student.tautanKelakuanBaik ? 'text-teal-500' : 'text-gray-300'} />
+                                      <span>Surat Kelakuan Baik</span>
+                                    </a>
+                                  </motion.div>
+                                </>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                          <button onClick={() => { setEditStudent(student); setIsModalOpen(true); }} className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Edit Data"><Edit size={16} /></button>
+                          <button onClick={() => handleDeleteClick(student)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><Trash2 size={16} /></button>
+                        </div>
                       </td>
                     </motion.tr>
                   ))}
