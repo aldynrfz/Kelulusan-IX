@@ -41,7 +41,8 @@ export default function Home() {
           nama: docData.nama,
           nisn: docData.nisn,
           lulus: docData.statusLulus,
-          link: docData.tautanDrive || ''
+          link: docData.tautanDrive || '',
+          linkKelakuanBaik: docData.tautanKelakuanBaik || ''
         });
       } else {
         setError('Data siswa dengan NISN tersebut tidak ditemukan.');
@@ -55,12 +56,12 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-r from-primary-100 via-white to-primary-200 animate-gradient-x">
+    <div className="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden bg-gradient-to-r from-primary-100 via-white to-primary-200">
       {/* Decorative background elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" style={{ animationDelay: '1.5s' }} />
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50" />
 
-      <div className="w-full max-w-lg z-10 relative">
+      <div className="w-full max-w-lg z-10 relative flex-1 flex flex-col justify-center py-10">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -172,21 +173,40 @@ export default function Home() {
                 STATUS: {result.lulus ? 'LULUS' : 'TIDAK LULUS'}
               </div>
 
-              {result.lulus && result.link && (
-                <a 
-                  href={result.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-dark-800 hover:bg-dark-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 w-full animate-pulse-slow"
-                >
-                  <Download size={20} />
-                  <span>Unduh Surat Keterangan Lulus</span>
-                </a>
+              {result.lulus && (result.link || result.linkKelakuanBaik) && (
+                <div className="flex flex-col gap-3 w-full">
+                  {result.link && (
+                    <a 
+                      href={result.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 bg-dark-800 hover:bg-dark-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 w-full animate-pulse-slow"
+                    >
+                      <Download size={20} />
+                      <span>Unduh Surat Keterangan Lulus</span>
+                    </a>
+                  )}
+                  {result.linkKelakuanBaik && (
+                    <a 
+                      href={result.linkKelakuanBaik}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-semibold py-4 px-8 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 w-full animate-pulse-slow"
+                    >
+                      <Download size={20} />
+                      <span>Unduh Surat Berkelakuan Baik</span>
+                    </a>
+                  )}
+                </div>
               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+      
+      <footer className="w-full text-center text-xs text-gray-500 font-medium py-4 mt-8 z-10 relative">
+        Portal Kelulusan MTsN 11 Tasikmalaya @2026 | Developed By : TIM Teknis MTsN 11 Tasikmalaya
+      </footer>
     </div>
   );
 }

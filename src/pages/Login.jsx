@@ -42,10 +42,10 @@ export default function Login() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-r from-primary-100 via-white to-primary-200 animate-gradient-x">
+    <div className="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden bg-gradient-to-r from-primary-100 via-white to-primary-200">
       {/* Decorative background elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" style={{ animationDelay: '1.5s' }} />
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -143,6 +143,10 @@ export default function Login() {
           </div>
         </div>
       </motion.div>
+
+      <footer className="w-full text-center text-xs text-gray-500 font-medium py-4 mt-8 z-10 relative">
+        Portal Kelulusan MTsN 11 Tasikmalaya @2026 | Developed By : TIM Teknis MTsN 11 Tasikmalaya
+      </footer>
     </div>
   );
 }

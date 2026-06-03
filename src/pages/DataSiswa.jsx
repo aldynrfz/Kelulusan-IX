@@ -16,14 +16,14 @@ const ITEMS_PER_PAGE = 10;
 const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
   // State form lokal, hanya merender komponen ini saat mengetik
   const [formData, setFormData] = useState(
-    initialData || { nisn: '', nama: '', statusLulus: true, tautanDrive: '' }
+    initialData || { nisn: '', nama: '', statusLulus: true, tautanDrive: '', tautanKelakuanBaik: '' }
   );
   const [isSaving, setIsSaving] = useState(false);
 
   // Reset form ketika modal dibuka/ditutup atau data awal berubah
   React.useEffect(() => {
     if (isOpen) {
-      setFormData(initialData || { nisn: '', nama: '', statusLulus: true, tautanDrive: '' });
+      setFormData(initialData || { nisn: '', nama: '', statusLulus: true, tautanDrive: '', tautanKelakuanBaik: '' });
     }
   }, [isOpen, initialData]);
 
@@ -46,8 +46,9 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
         onClick={onClose}
-        className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40"
       />
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
         <motion.div
@@ -142,6 +143,22 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Tautan Kelakuan Baik</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <LinkIcon size={18} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="url"
+                      value={formData.tautanKelakuanBaik || ''}
+                      onChange={(e) => setFormData({ ...formData, tautanKelakuanBaik: e.target.value })}
+                      className="input-field pl-10 py-2.5"
+                      placeholder="https://drive.google.com/..."
+                    />
+                  </div>
+                </div>
+
                 <div className="pt-4 flex gap-3">
                   <button type="button" onClick={onClose} className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
                     Batal
@@ -187,13 +204,14 @@ const UploadModal = memo(({ isOpen, onClose, onSubmit, students = [] }) => {
         NISN: s.nisn,
         'Nama Siswa': s.nama,
         'Status Lulus': s.statusLulus ? 'Ya' : 'Tidak',
-        'Tautan Google Drive': s.tautanDrive,
+        'Tautan Google Drive (SKL)': s.tautanDrive || '',
+        'Tautan Kelakuan Baik': s.tautanKelakuanBaik || ''
       }));
     } else {
-      templateData = [{ NISN: '0012345678', 'Nama Siswa': 'Contoh Nama', 'Status Lulus': 'Ya', 'Tautan Google Drive': 'https://drive.google.com/...' }];
+      templateData = [{ NISN: '0012345678', 'Nama Siswa': 'Contoh Nama', 'Status Lulus': 'Ya', 'Tautan Google Drive (SKL)': 'https://drive.google.com/...', 'Tautan Kelakuan Baik': 'https://drive.google.com/...' }];
     }
     const ws = XLSX.utils.json_to_sheet(templateData);
-    ws['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 40 }];
+    ws['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 40 }, { wch: 40 }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa');
     XLSX.writeFile(wb, 'data_siswa.xlsx');
@@ -212,7 +230,8 @@ const UploadModal = memo(({ isOpen, onClose, onSubmit, students = [] }) => {
         nisn: String(row['NISN'] || ''),
         nama: String(row['Nama Siswa'] || ''),
         statusLulus: String(row['Status Lulus'] || '').toLowerCase() === 'ya',
-        tautanDrive: String(row['Tautan Google Drive'] || ''),
+        tautanDrive: String(row['Tautan Google Drive (SKL)'] || row['Tautan Google Drive'] || ''),
+        tautanKelakuanBaik: String(row['Tautan Kelakuan Baik'] || ''),
       }));
       setUploadPreview(parsed);
     };
@@ -244,7 +263,7 @@ const UploadModal = memo(({ isOpen, onClose, onSubmit, students = [] }) => {
 
   return (
     <>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={onClose} className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40" />
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
         <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} className="w-full max-w-lg pointer-events-auto">
           <div className="glass-card overflow-hidden">
@@ -326,7 +345,7 @@ const ConfirmDeleteModal = memo(({ isOpen, onClose, onConfirm, studentName }) =>
   if (!isOpen) return null;
   return (
     <>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={onClose} className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40" />
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
         <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} className="w-full max-w-sm pointer-events-auto glass-card overflow-hidden">
           <div className="p-6 text-center">
@@ -368,7 +387,7 @@ const ConfirmDeleteAllModal = memo(({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
   return (
     <>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={!isDeleting ? onClose : undefined} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={!isDeleting ? onClose : undefined} className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40" />
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
         <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} className="w-full max-w-sm pointer-events-auto glass-card overflow-hidden">
           <div className="p-6 text-center">
@@ -566,6 +585,7 @@ export default function DataSiswa() {
           nama: student.nama,
           statusLulus: student.statusLulus,
           tautanDrive: student.tautanDrive,
+          tautanKelakuanBaik: student.tautanKelakuanBaik,
           order: i
         });
         operationCount++;
@@ -646,15 +666,17 @@ export default function DataSiswa() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/20 border-b-2 border-white/40 text-gray-700 text-sm">
-                  <th className="px-6 py-4 font-semibold w-1/4 border-r border-gray-100">NISN</th>
-                  <th className="px-6 py-4 font-semibold w-1/3 border-r border-gray-100">Nama Siswa</th>
+                  <th className="px-6 py-4 font-semibold w-16 border-r border-gray-100 text-center">No</th>
+                  <th className="px-6 py-4 font-semibold border-r border-gray-100">NISN</th>
+                  <th className="px-6 py-4 font-semibold border-r border-gray-100">Nama Siswa</th>
                   <th className="px-6 py-4 font-semibold border-r border-gray-100">Status Kelulusan</th>
+                  <th className="px-6 py-4 font-semibold border-r border-gray-100 w-48">Dokumen</th>
                   <th className="px-6 py-4 font-semibold text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 <AnimatePresence mode="wait">
-                  {currentData.map((student) => (
+                  {currentData.map((student, index) => (
                     <motion.tr
                       key={student.id}
                       initial={{ opacity: 0 }}
@@ -663,6 +685,7 @@ export default function DataSiswa() {
                       transition={{ duration: 0.2 }}
                       className="hover:bg-primary-50/60 hover:shadow-[inset_4px_0_0_0_theme(colors.primary.500)] transition-all duration-150 cursor-default"
                     >
+                      <td className="px-6 py-4 text-sm font-medium text-gray-700 border-r border-gray-100 text-center">{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</td>
                       <td className="px-6 py-4 text-sm font-medium text-gray-700 border-r border-gray-100">{student.nisn}</td>
                       <td className="px-6 py-4 text-sm text-gray-900 font-medium border-r border-gray-100">{student.nama}</td>
                       <td className="px-6 py-4 text-sm border-r border-gray-100">
@@ -670,6 +693,16 @@ export default function DataSiswa() {
                           {student.statusLulus ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
                           {student.statusLulus ? 'LULUS' : 'TIDAK LULUS'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm border-r border-gray-100">
+                        <div className="flex flex-col gap-1.5">
+                          <div className={`flex items-center gap-1.5 text-xs font-medium ${student.tautanDrive ? 'text-green-600' : 'text-gray-400'}`}>
+                            {student.tautanDrive ? <CheckCircle2 size={14} /> : <X size={14} />} SKL
+                          </div>
+                          <div className={`flex items-center gap-1.5 text-xs font-medium ${student.tautanKelakuanBaik ? 'text-green-600' : 'text-gray-400'}`}>
+                            {student.tautanKelakuanBaik ? <CheckCircle2 size={14} /> : <X size={14} />} Kelakuan Baik
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
                         <a href={student.tautanDrive} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Lihat Berkas"><ExternalLink size={16} /></a>
@@ -681,7 +714,7 @@ export default function DataSiswa() {
                 </AnimatePresence>
                 {currentData.length === 0 && (
                   <tr>
-                    <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
                       <div className="flex flex-col items-center justify-center">
                         <Search size={40} className="text-gray-300 mb-3" />
                         <p>Tidak ada data siswa ditemukan.</p>

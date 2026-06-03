@@ -53,18 +53,22 @@ export default function AdminLayout({ children }) {
     }`;
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-r from-primary-100 via-white to-primary-200 animate-gradient-x relative overflow-hidden">
+    <div className="min-h-screen flex bg-gradient-to-r from-primary-100 via-white to-primary-200 relative overflow-hidden">
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-gray-900/40 z-20 md:hidden"
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 bg-gray-900/60 z-20 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar Responsive */}
       <aside
-        className={`fixed inset-y-0 left-0 bg-white/40 backdrop-blur-xl border-r border-white/60 z-30 flex flex-col transition-all duration-300 ease-in-out md:relative ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-0 overflow-hidden opacity-0 md:opacity-100'
+        className={`fixed inset-y-0 left-0 bg-white border-r border-gray-100 shadow-lg z-30 flex flex-col transition-all duration-300 ease-in-out md:relative ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-0 overflow-hidden opacity-0 md:opacity-100'
           }`}
       >
         <div className="p-6 border-b border-gray-100 flex items-center justify-between whitespace-nowrap">
@@ -100,7 +104,7 @@ export default function AdminLayout({ children }) {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
 
         {/* Desktop Header */}
-        <header className="hidden md:flex bg-white/40 backdrop-blur-xl h-20 border-b border-white/60 items-center justify-between px-8 flex-shrink-0 z-10">
+        <header className="hidden md:flex bg-white h-20 border-b border-gray-100 shadow-sm items-center justify-between px-8 flex-shrink-0 z-10">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="p-2 hover:bg-gray-100 rounded-xl text-gray-500 transition-colors"
@@ -171,7 +175,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* Mobile Header */}
-        <div className="md:hidden bg-white/40 backdrop-blur-xl p-4 border-b border-white/60 flex justify-between items-center z-10 flex-shrink-0">
+        <div className="md:hidden bg-white p-4 border-b border-gray-100 shadow-sm flex justify-between items-center z-10 flex-shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -232,10 +236,14 @@ export default function AdminLayout({ children }) {
         {/* Removed horizontal mobile nav */}
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-transparent">
-          <div className="max-w-6xl mx-auto">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-transparent flex flex-col">
+          <div className="max-w-6xl mx-auto w-full flex-1">
             {children}
           </div>
+
+          <footer className="mt-12 text-center text-xs text-gray-500 font-medium py-4 border-t border-gray-200/50">
+            Portal Kelulusan MTsN 11 Tasikmalaya @2026 | Developed By : TIM Teknis MTsN 11 Tasikmalaya
+          </footer>
         </div>
       </main>
 
@@ -247,8 +255,9 @@ export default function AdminLayout({ children }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               onClick={() => setIsLogoutModalOpen(false)}
-              className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[60]"
+              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60]"
             />
             <div className="fixed inset-0 z-[70] flex items-center justify-center px-4 pointer-events-none">
               <motion.div
