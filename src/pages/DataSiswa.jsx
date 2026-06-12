@@ -16,14 +16,14 @@ const ITEMS_PER_PAGE = 10;
 const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
   // State form lokal, hanya merender komponen ini saat mengetik
   const [formData, setFormData] = useState(
-    initialData || { nisn: '', nama: '', statusLulus: true, tautanDrive: '', tautanKelakuanBaik: '' }
+    initialData || { nisn: '', nama: '', statusLulus: true, tautanDrive: '', tautanKelakuanBaik: '', tautanSertifikatTKA: '' }
   );
   const [isSaving, setIsSaving] = useState(false);
 
   // Reset form ketika modal dibuka/ditutup atau data awal berubah
   React.useEffect(() => {
     if (isOpen) {
-      setFormData(initialData || { nisn: '', nama: '', statusLulus: true, tautanDrive: '', tautanKelakuanBaik: '' });
+      setFormData(initialData || { nisn: '', nama: '', statusLulus: true, tautanDrive: '', tautanKelakuanBaik: '', tautanSertifikatTKA: '' });
     }
   }, [isOpen, initialData]);
 
@@ -159,6 +159,22 @@ const StudentFormModal = memo(({ isOpen, onClose, onSubmit, initialData }) => {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Tautan Sertifikat TKA</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <LinkIcon size={18} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="url"
+                      value={formData.tautanSertifikatTKA || ''}
+                      onChange={(e) => setFormData({ ...formData, tautanSertifikatTKA: e.target.value })}
+                      className="input-field pl-10 py-2.5"
+                      placeholder="https://drive.google.com/..."
+                    />
+                  </div>
+                </div>
+
                 <div className="pt-4 flex gap-3">
                   <button type="button" onClick={onClose} className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
                     Batal
@@ -205,13 +221,14 @@ const UploadModal = memo(({ isOpen, onClose, onSubmit, students = [] }) => {
         'Nama Siswa': s.nama,
         'Status Lulus': s.statusLulus ? 'Ya' : 'Tidak',
         'Tautan Google Drive (SKL)': s.tautanDrive || '',
-        'Tautan Kelakuan Baik': s.tautanKelakuanBaik || ''
+        'Tautan Kelakuan Baik': s.tautanKelakuanBaik || '',
+        'Tautan Sertifikat TKA': s.tautanSertifikatTKA || ''
       }));
     } else {
-      templateData = [{ NISN: '0012345678', 'Nama Siswa': 'Contoh Nama', 'Status Lulus': 'Ya', 'Tautan Google Drive (SKL)': 'https://drive.google.com/...', 'Tautan Kelakuan Baik': 'https://drive.google.com/...' }];
+      templateData = [{ NISN: '0012345678', 'Nama Siswa': 'Contoh Nama', 'Status Lulus': 'Ya', 'Tautan Google Drive (SKL)': 'https://drive.google.com/...', 'Tautan Kelakuan Baik': 'https://drive.google.com/...', 'Tautan Sertifikat TKA': 'https://drive.google.com/...' }];
     }
     const ws = XLSX.utils.json_to_sheet(templateData);
-    ws['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 40 }, { wch: 40 }];
+    ws['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 40 }, { wch: 40 }, { wch: 40 }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa');
     XLSX.writeFile(wb, 'data_siswa.xlsx');
@@ -232,6 +249,7 @@ const UploadModal = memo(({ isOpen, onClose, onSubmit, students = [] }) => {
         statusLulus: String(row['Status Lulus'] || '').toLowerCase() === 'ya',
         tautanDrive: String(row['Tautan Google Drive (SKL)'] || row['Tautan Google Drive'] || ''),
         tautanKelakuanBaik: String(row['Tautan Kelakuan Baik'] || ''),
+        tautanSertifikatTKA: String(row['Tautan Sertifikat TKA'] || ''),
       }));
       setUploadPreview(parsed);
     };
@@ -587,6 +605,7 @@ export default function DataSiswa() {
           statusLulus: student.statusLulus,
           tautanDrive: student.tautanDrive,
           tautanKelakuanBaik: student.tautanKelakuanBaik,
+          tautanSertifikatTKA: student.tautanSertifikatTKA,
           order: i
         });
         operationCount++;
@@ -663,7 +682,7 @@ export default function DataSiswa() {
 
         {/* Data Table */}
         <div className="glass-card overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[250px]">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/20 border-b-2 border-white/40 text-gray-700 text-sm">
@@ -702,6 +721,9 @@ export default function DataSiswa() {
                           </div>
                           <div className={`flex items-center gap-1.5 text-xs font-medium ${student.tautanKelakuanBaik ? 'text-green-600' : 'text-gray-400'}`}>
                             {student.tautanKelakuanBaik ? <CheckCircle2 size={14} /> : <X size={14} />} Kelakuan Baik
+                          </div>
+                          <div className={`flex items-center gap-1.5 text-xs font-medium ${student.tautanSertifikatTKA ? 'text-green-600' : 'text-gray-400'}`}>
+                            {student.tautanSertifikatTKA ? <CheckCircle2 size={14} /> : <X size={14} />} Sertifikat TKA
                           </div>
                         </div>
                       </td>
@@ -755,6 +777,18 @@ export default function DataSiswa() {
                                     >
                                       <FileText size={15} className={student.tautanKelakuanBaik ? 'text-teal-500' : 'text-gray-300'} />
                                       <span>Surat Kelakuan Baik</span>
+                                    </a>
+                                    <a
+                                      href={student.tautanSertifikatTKA || '#'}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      onClick={(e) => { if (!student.tautanSertifikatTKA) e.preventDefault(); setOpenDropdownId(null); }}
+                                      className={`flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                                        student.tautanSertifikatTKA ? 'text-gray-700 hover:bg-sky-50 hover:text-sky-700' : 'text-gray-300 cursor-not-allowed'
+                                      }`}
+                                    >
+                                      <FileText size={15} className={student.tautanSertifikatTKA ? 'text-sky-500' : 'text-gray-300'} />
+                                      <span>Sertifikat TKA</span>
                                     </a>
                                   </motion.div>
                                 </>

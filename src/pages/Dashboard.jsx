@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Link as LinkIcon, Users, CheckCircle, XCircle, FileText, FileCheck } from 'lucide-react';
+import { Check, X, Link as LinkIcon, Users, CheckCircle, XCircle, FileText, FileCheck, Award } from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { db } from '../firebase';
@@ -26,6 +26,7 @@ export default function Dashboard() {
   const totalTidakLulus = totalSiswa - totalLulus;
   const totalSKL = students.filter(s => s.tautanDrive).length;
   const totalKelakuanBaik = students.filter(s => s.tautanKelakuanBaik).length;
+  const totalSertifikatTKA = students.filter(s => s.tautanSertifikatTKA).length;
 
   return (
     <AdminLayout>
@@ -36,7 +37,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
             className="glass-card p-4 lg:p-5 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left"
@@ -101,6 +102,19 @@ export default function Dashboard() {
               <div className="text-2xl font-bold text-gray-900">{totalKelakuanBaik}</div>
             </div>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.5 }}
+            className="glass-card p-4 lg:p-5 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left"
+          >
+            <div className="w-12 h-12 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center flex-shrink-0">
+              <Award size={24} />
+            </div>
+            <div>
+              <div className="text-xs font-medium text-gray-500 mb-1">Sertifikat TKA Siap</div>
+              <div className="text-2xl font-bold text-gray-900">{totalSertifikatTKA}</div>
+            </div>
+          </motion.div>
         </div>
 
         {/* List Section */}
@@ -147,6 +161,11 @@ export default function Dashboard() {
                           <span className="bg-teal-50 text-teal-600 px-2 py-0.5 rounded flex items-center gap-1"><Check size={12} /> Sikap</span>
                         ) : (
                           <span className="bg-gray-100 text-gray-400 px-2 py-0.5 rounded flex items-center gap-1"><X size={12} /> Sikap</span>
+                        )}
+                        {student.tautanSertifikatTKA ? (
+                          <span className="bg-sky-50 text-sky-600 px-2 py-0.5 rounded flex items-center gap-1"><Check size={12} /> TKA</span>
+                        ) : (
+                          <span className="bg-gray-100 text-gray-400 px-2 py-0.5 rounded flex items-center gap-1"><X size={12} /> TKA</span>
                         )}
                       </div>
                     </div>

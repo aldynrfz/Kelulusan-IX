@@ -1,10 +1,58 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, Download, CheckCircle, XCircle, GraduationCap } from 'lucide-react';
+import { Search, Loader2, Download, CheckCircle, XCircle, GraduationCap, AlertCircle } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import confetti from 'canvas-confetti';
 import logo from '../assets/logo.png';
+
+const DownloadButton = ({ href, text, baseColor, hoverColor }) => {
+  const [status, setStatus] = useState('idle');
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    if (status !== 'idle') return;
+
+    setStatus('downloading');
+    setTimeout(() => {
+      setStatus('done');
+      window.open(href, '_blank', 'noopener,noreferrer');
+      setTimeout(() => setStatus('idle'), 3000);
+    }, 1200);
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className={`relative overflow-hidden inline-flex items-center justify-center gap-2 text-white font-semibold py-4 px-8 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 w-full ${status === 'done' ? 'bg-green-500 hover:bg-green-600' : `${baseColor} ${hoverColor}`
+        }`}
+    >
+      <AnimatePresence mode="wait">
+        {status === 'idle' && (
+          <motion.div key="idle" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2" transition={{ duration: 0.2 }}>
+            <Download size={20} />
+            <span>{text}</span>
+          </motion.div>
+        )}
+        {status === 'downloading' && (
+          <motion.div key="downloading" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex items-center gap-2" transition={{ duration: 0.2 }}>
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Memproses...</span>
+          </motion.div>
+        )}
+        {status === 'done' && (
+          <motion.div key="done" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} className="flex items-center gap-2" transition={{ duration: 0.3, type: "spring" }}>
+            <CheckCircle size={20} />
+            <span>Berhasil!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </button>
+  );
+};
 
 export default function Home() {
   const [nisn, setNisn] = useState('');
@@ -23,11 +71,11 @@ export default function Home() {
     try {
       const q = query(collection(db, "siswa"), where("nisn", "==", nisn));
       const querySnapshot = await getDocs(q);
-      
+
       if (!querySnapshot.empty) {
         // Assuming there is only one student per NISN
         const docData = querySnapshot.docs[0].data();
-        
+
         if (docData.statusLulus) {
           confetti({
             particleCount: 150,
@@ -42,7 +90,8 @@ export default function Home() {
           nisn: docData.nisn,
           lulus: docData.statusLulus,
           link: docData.tautanDrive || '',
-          linkKelakuanBaik: docData.tautanKelakuanBaik || ''
+          linkKelakuanBaik: docData.tautanKelakuanBaik || '',
+          linkSertifikatTKA: docData.tautanSertifikatTKA || ''
         });
       } else {
         setError('Data siswa dengan NISN tersebut tidak ditemukan.');
@@ -121,7 +170,7 @@ export default function Home() {
           </form>
 
           {error && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               className="mt-4 p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 text-sm text-center"
@@ -129,7 +178,7 @@ export default function Home() {
               {error}
             </motion.div>
           )}
-          
+
           <div className="mt-8 text-center text-xs text-gray-400">
             Pastikan NISN yang Anda masukkan sudah benar.
           </div>
@@ -146,7 +195,7 @@ export default function Home() {
             >
               <div className="mb-6">
                 {result.lulus ? (
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.2, type: 'spring' }}
@@ -155,7 +204,7 @@ export default function Home() {
                     <CheckCircle size={32} />
                   </motion.div>
                 ) : (
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.2, type: 'spring' }}
@@ -165,7 +214,7 @@ export default function Home() {
                   </motion.div>
                 )}
               </div>
-              
+
               <h2 className="text-2xl font-bold text-gray-900 mb-1">{result.nama}</h2>
               <p className="text-gray-500 mb-6">NISN: {result.nisn}</p>
 
@@ -173,37 +222,46 @@ export default function Home() {
                 STATUS: {result.lulus ? 'LULUS' : 'TIDAK LULUS'}
               </div>
 
-              {result.lulus && (result.link || result.linkKelakuanBaik) && (
+              {result.lulus && (result.link || result.linkKelakuanBaik || result.linkSertifikatTKA) && (
                 <div className="flex flex-col gap-3 w-full">
                   {result.link && (
-                    <a 
+                    <DownloadButton
                       href={result.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 bg-dark-800 hover:bg-dark-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 w-full animate-pulse-slow"
-                    >
-                      <Download size={20} />
-                      <span>Unduh Surat Keterangan Lulus</span>
-                    </a>
+                      text="Unduh Surat Keterangan Lulus"
+                      baseColor="bg-dark-800"
+                      hoverColor="hover:bg-dark-700"
+                    />
                   )}
                   {result.linkKelakuanBaik && (
-                    <a 
+                    <DownloadButton
                       href={result.linkKelakuanBaik}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-semibold py-4 px-8 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all duration-300 w-full animate-pulse-slow"
-                    >
-                      <Download size={20} />
-                      <span>Unduh Surat Berkelakuan Baik</span>
-                    </a>
+                      text="Unduh Surat Berkelakuan Baik"
+                      baseColor="bg-teal-600"
+                      hoverColor="hover:bg-teal-500"
+                    />
+                  )}
+                  {result.linkSertifikatTKA && (
+                    <DownloadButton
+                      href={result.linkSertifikatTKA}
+                      text="Unduh Sertifikat TKA"
+                      baseColor="bg-sky-600"
+                      hoverColor="hover:bg-sky-500"
+                    />
                   )}
                 </div>
               )}
+
+              <div className="mt-6 p-4 bg-orange-50 text-orange-700 text-sm rounded-xl border border-orange-100/50 flex items-start gap-3 text-left">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <p>
+                  <strong>Catatan:</strong> Jika terdapat kesalahan penulisan nama atau data lainnya pada dokumen, silakan hubungi admin/TU.
+                </p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-      
+
       <footer className="w-full text-center text-xs text-gray-500 font-medium py-4 mt-8 z-10 relative">
         Portal Kelulusan MTsN 11 Tasikmalaya @2026 | Developed By : TIM Teknis MTsN 11 Tasikmalaya
       </footer>
